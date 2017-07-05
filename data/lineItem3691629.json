@@ -1,0 +1,268 @@
+{
+  "line-item": {
+    "id": 3691629,
+    "code": null,
+    "name": "ALI-retargeting",
+    "advertiser_id": 483508,
+    "state": "active",
+    "start_date": null,
+    "end_date": null,
+    "timezone": "EST5EDT",
+    "discrepancy_pct": 0,
+    "publishers_allowed": "all",
+    "revenue_value": 3,
+    "revenue_type": "cpm",
+    "goal_type": "none",
+    "goal_value": null,
+    "last_modified": "2017-06-29 18:07:33",
+    "click_url": null,
+    "currency": "USD",
+    "require_cookie_for_tracking": true,
+    "profile_id": 73524999,
+    "member_id": 958,
+    "flat_fee_type": null,
+    "comments": "Duh",
+    "remaining_days": null,
+    "total_days": null,
+    "manage_creative": true,
+    "budget_set_per_flight": true,
+    "creative_distribution_type": "even",
+    "line_item_type": "standard_v2",
+    "bid_object_type": "creative",
+    "prefer_delivery_over_performance": false,
+    "priority": "5",
+    "advertiser": {
+      "id": 483508,
+      "name": "!eelgna2"
+    },
+    "flat_fee": null,
+    "deals": null,
+    "delivery_goal": null,
+    "labels": null,
+    "broker_fees": [
+      {
+        "broker_id": 2372,
+        "payment_type": "revshare",
+        "value": 0.43,
+        "description": "ddd",
+        "broker_name": "3pas data fee"
+      }
+    ],
+    "pixels": [
+      {
+        "id": 808301,
+        "post_view_revenue": null,
+        "post_click_revenue": null,
+        "state": "active",
+        "trigger_type": "hybrid",
+        "name": "20170130Test008"
+      },
+      {
+        "id": 808304,
+        "post_view_revenue": null,
+        "post_click_revenue": null,
+        "state": "active",
+        "trigger_type": "hybrid",
+        "name": "20170130Test011"
+      }
+    ],
+    "insertion_orders": [
+      {
+        "id": 442427,
+        "state": "active",
+        "code": null,
+        "name": "anglee-Q3",
+        "advertiser_id": 483508,
+        "start_date": null,
+        "end_date": null,
+        "timezone": "EST5EDT",
+        "last_modified": "2017-04-27 20:04:51",
+        "currency": "USD",
+        "budget_intervals": [
+          {
+            "id": 854125,
+            "object_id": 442427,
+            "object_type": "insertion_order",
+            "start_date": "2017-07-01 00:00:00",
+            "end_date": "2017-07-31 23:59:59",
+            "timezone": "EST5EDT",
+            "lifetime_budget": 9000,
+            "lifetime_budget_imps": null,
+            "lifetime_pacing": false,
+            "enable_pacing": false,
+            "daily_budget_imps": null,
+            "daily_budget": null
+          },
+          {
+            "id": 854126,
+            "object_id": 442427,
+            "object_type": "insertion_order",
+            "start_date": "2017-08-01 00:00:00",
+            "end_date": "2017-08-31 23:59:59",
+            "timezone": "EST5EDT",
+            "lifetime_budget": 8000,
+            "lifetime_budget_imps": null,
+            "lifetime_pacing": false,
+            "enable_pacing": false,
+            "daily_budget_imps": null,
+            "daily_budget": null
+          },
+          {
+            "id": 854127,
+            "object_id": 442427,
+            "object_type": "insertion_order",
+            "start_date": "2017-09-01 00:00:00",
+            "end_date": "2017-09-30 23:59:59",
+            "timezone": "EST5EDT",
+            "lifetime_budget": 7500,
+            "lifetime_budget_imps": null,
+            "lifetime_pacing": false,
+            "enable_pacing": false,
+            "daily_budget_imps": null,
+            "daily_budget": null
+          }
+        ]
+      },
+      {
+        "id": 442435,
+        "state": "active",
+        "code": null,
+        "name": "anglee-Q4",
+        "advertiser_id": 483508,
+        "start_date": null,
+        "end_date": null,
+        "timezone": "EST5EDT",
+        "last_modified": "2017-04-27 20:04:51",
+        "currency": "USD",
+        "budget_intervals": [
+          {
+            "id": 854138,
+            "object_id": 442435,
+            "object_type": "insertion_order",
+            "start_date": "2017-10-01 00:00:00",
+            "end_date": "2017-10-31 23:59:59",
+            "timezone": "EST5EDT",
+            "lifetime_budget": 500,
+            "lifetime_budget_imps": null,
+            "lifetime_pacing": false,
+            "enable_pacing": false,
+            "daily_budget_imps": null,
+            "daily_budget": null
+          },
+          {
+            "id": 854139,
+            "object_id": 442435,
+            "object_type": "insertion_order",
+            "start_date": "2017-11-05 00:00:00",
+            "end_date": "2017-11-25 23:59:59",
+            "timezone": "EST5EDT",
+            "lifetime_budget": 800,
+            "lifetime_budget_imps": null,
+            "lifetime_pacing": false,
+            "enable_pacing": false,
+            "daily_budget_imps": null,
+            "daily_budget": null
+          }
+        ]
+      }
+    ],
+    "goal_pixels": null,
+    "imptrackers": null,
+    "clicktrackers": null,
+    "campaigns": null,
+    "valuation": {
+      "min_margin_pct": 14,
+      "max_avg_cpm": null,
+      "min_avg_cpm": null,
+      "goal_target": null,
+      "goal_threshold": null,
+      "no_revenue_log": false,
+      "bid_price_pacing_enabled": false,
+      "bid_price_pacing_lever": 0,
+      "campaign_group_valuation_strategy": null,
+      "goal_confidence_threshold": null,
+      "performance_offer": false,
+      "performance_mkt_managed": false,
+      "performance_mkt_crossnet": false
+    },
+    "creatives": null,
+    "budget_intervals": [
+      {
+        "id": 954319,
+        "object_id": 3691629,
+        "object_type": "campaign_group",
+        "start_date": "2017-07-15 00:00:00",
+        "end_date": "2017-08-10 23:59:59",
+        "timezone": "EST5EDT",
+        "parent_interval_id": null,
+        "daily_budget": 80,
+        "daily_budget_imps": null,
+        "lifetime_pacing": false,
+        "enable_pacing": true
+      },
+      {
+        "id": 954318,
+        "object_id": 3691629,
+        "object_type": "campaign_group",
+        "start_date": "2017-08-20 00:00:00",
+        "end_date": "2017-09-05 23:59:59",
+        "timezone": "EST5EDT",
+        "parent_interval_id": null,
+        "daily_budget": 80,
+        "daily_budget_imps": null,
+        "lifetime_pacing": false,
+        "enable_pacing": true
+      },
+      {
+        "id": 954352,
+        "object_id": 3691629,
+        "object_type": "campaign_group",
+        "start_date": "2017-09-25 00:00:00",
+        "end_date": "2017-10-15 23:59:59",
+        "timezone": "EST5EDT",
+        "parent_interval_id": null,
+        "daily_budget": 80,
+        "daily_budget_imps": null,
+        "lifetime_pacing": false,
+        "enable_pacing": true
+      }
+    ],
+    "click_model": null,
+    "expected_value_model": null,
+    "custom_models": [
+      {
+        "type": "cadence",
+        "id": 206064,
+        "name": "cadence model 2017-06-29 18:07:16.206",
+        "active": "1"
+      }
+    ],
+    "inventory_discovery": null,
+    "inventory_discovery_budget": null,
+    "incrementality": null,
+    "auction_event": {
+      "payment_auction_event_type_code": "impression",
+      "payment_auction_event_type": "impression",
+      "payment_auction_type_id": 1,
+      "revenue_auction_event_type_code": "impression",
+      "revenue_auction_event_type": "impression",
+      "revenue_auction_type_id": 1,
+      "kpi_auction_event_type_code": "impression",
+      "kpi_auction_event_type": "impression",
+      "kpi_auction_type_id": 1,
+      "kpi_value": null
+    },
+    "custom_optimization_note": null,
+    "lifetime_budget": null,
+    "lifetime_budget_imps": null,
+    "daily_budget": null,
+    "daily_budget_imps": null,
+    "enable_pacing": null,
+    "allow_safety_pacing": null,
+    "lifetime_pacing": null,
+    "lifetime_pacing_span": null,
+    "lifetime_pacing_pct": null,
+    "payout_margin": null,
+    "inventory_type": "direct"
+  }
+}

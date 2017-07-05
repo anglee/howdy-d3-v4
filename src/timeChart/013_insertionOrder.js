@@ -16,7 +16,12 @@ const loadLineItem = (id) => new Promise(function (resolve) {
 });
 
 (async () => {
-  const insertionOrder = await loadInsertionOrder(442427);
+  const id = 442427;
+  document.title = `Insertion Order ${id}`;
+
+  const insertionOrder = await loadInsertionOrder(id);
+  d3.select('.title').text(`Insertion Order: ${insertionOrder.name}(${insertionOrder.id})`);
+
   const ioNamesMap = new Map();
   ioNamesMap.set(insertionOrder.id, insertionOrder.name);
   console.log(insertionOrder);
@@ -30,9 +35,9 @@ const loadLineItem = (id) => new Promise(function (resolve) {
   // console.log(insertionOrders);
 
   const billingPeriods = _.map(insertionOrder.budget_intervals, interval => _.assignIn({}, interval, {
-      start_date: moment(interval.start_date, 'YYYY-MM-DD HH:mm:ss'),
-      end_date: _.isNull(interval.end_date) ? null : moment(interval.end_date, 'YYYY-MM-DD HH:mm:ss')
-    }));
+    start_date: moment(interval.start_date, 'YYYY-MM-DD HH:mm:ss'),
+    end_date: _.isNull(interval.end_date) ? null : moment(interval.end_date, 'YYYY-MM-DD HH:mm:ss')
+  }));
   console.log(billingPeriods);
 
   const flights = _.map(lineItems, lineItem => lineItem['budget_intervals']
@@ -55,11 +60,13 @@ const loadLineItem = (id) => new Promise(function (resolve) {
   })();
   console.log(dataRange);
 
-  const colors = d3.scaleOrdinal(d3.schemePastel2)
-    .domain([insertionOrder.id]);
+  const ioColor = d3.scaleOrdinal(d3.schemePastel2)
+    .domain([insertionOrder.id])(insertionOrder.id);
+  const colors = d3.scaleOrdinal(d3.schemeSet2)
+    .domain(_.map(lineItems, 'id'));
 
   const margin = {
-    left: 100,
+    left: 90,
     right: 10,
     top: 10,
     bottom: 35,
@@ -73,10 +80,10 @@ const loadLineItem = (id) => new Promise(function (resolve) {
 
   const svg = d3.select('.chart')
     .append('svg')
-      .attr('width', chartWidth)
-      .attr('height', chartHeight)
+    .attr('width', chartWidth)
+    .attr('height', chartHeight)
     .append('g')
-      .attr('transform', `translate(${margin.left}, ${margin.top})`);
+    .attr('transform', `translate(${margin.left}, ${margin.top})`);
 
   svg.append('rect')
     .attr('width', width)
@@ -144,7 +151,7 @@ const loadLineItem = (id) => new Promise(function (resolve) {
 
   const yScale = d3.scaleBand()
     .padding(0.2)
-    .domain([`${insertionOrder.name}`, ...lineItems.map(lineItem => `${lineItem.name}`)])
+    .domain([`IO BillingPeriods`, ...lineItems.map(lineItem => `${lineItem.name}`)])
     .range([0, height]);
 
   const barBillingPeriods = svg.append('g');
@@ -158,14 +165,14 @@ const loadLineItem = (id) => new Promise(function (resolve) {
   const renderBillingPeriodsRects = () => {
     barBillingPeriodsRects
       .attr('x', d => xScale(d.start_date))
-      .attr('y', d => yScale(`${insertionOrder.name}`))
+      .attr('y', d => yScale(`IO BillingPeriods`))
       .attr('width', d => {
         return !_.isNull(d.end_date)
           ? (xScale(d.end_date) - xScale(d.start_date))
           : width - xScale(d.start_date);
       })
       .attr('height', d => yScale.bandwidth())
-      .style('fill', d => colors(d.object_id))
+      .style('fill', ioColor)
       .style('stroke', 'teal')
     ;
   };
@@ -173,7 +180,17 @@ const loadLineItem = (id) => new Promise(function (resolve) {
   const barBillingPeriodsTexts = barBillingPeriods.selectAll('text')
     .data(billingPeriods)
     .enter()
-    .append('text');
+    .append('text')
+    .on("mouseover", function (d) {
+      d3.select(this)
+        .text(d => `✏️ $${d.lifetime_budget}`)
+        .style("cursor", "pointer");
+    })
+    .on("mouseout", function (d) {
+      d3.select(this)
+        .text(d => `$${d.lifetime_budget}`)
+        .style("cursor", "default");
+    });
   const renderBarBillingPeriodsTexts = () => {
     barBillingPeriodsTexts
       .attr('x', d => {
@@ -181,12 +198,12 @@ const loadLineItem = (id) => new Promise(function (resolve) {
           ? (xScale(d.end_date) + xScale(d.start_date)) / 2
           : (width + xScale(d.start_date)) / 2
       })
-      .attr('y', d => yScale(`${insertionOrder.name}`) + yScale.bandwidth() / 2)
+      .attr('y', d => yScale(`IO BillingPeriods`) + yScale.bandwidth() / 2)
       .attr("text-anchor", "middle")
       .attr("alignment-baseline", "central")
       .attr("font-family", "sans-serif")
       .attr("font-size", "12px")
-      .text(d => `${ioNamesMap.get(d.object_id)} ($${d.lifetime_budget})`)
+      .text(d => `$${d.lifetime_budget}`)
       // .text(d => `(IO:${d.object_id}) $${d.lifetime_budget}`)
       .style('fill', 'black')
       .attr('opacity', function (d) {
@@ -199,29 +216,20 @@ const loadLineItem = (id) => new Promise(function (resolve) {
   };
 
   const {
-    barFlightsArray,
-    barFlightsRectsArray,
     renderFlightsRectsArray,
-    barFlightsTextsArray,
     renderBarFlightsTextsArray,
   } = (() => {
-    const barFlightsArray = [];
-    const barFlightsRectsArray = [];
     const renderFlightsRectsArray = [];
-    const barFlightsTextsArray = [];
     const renderBarFlightsTextsArray = [];
 
     lineItems.forEach((lineItem, i) => {
       const barFlights = svg.append('g');
-      barFlightsArray.push(barFlights);
-
       const barFlightsRects = barFlights.selectAll('rect')
         .data(flights[i])
         .enter()
         .append('rect')
         .on("mouseover", showTooltip)
         .on("mouseout", hideTooltip);
-      barFlightsRectsArray.push(barFlightsRects);
 
       const renderFlightsRects = () => {
         barFlightsRects
@@ -230,16 +238,24 @@ const loadLineItem = (id) => new Promise(function (resolve) {
           .attr('width', d => (xScale(d.end_date) - xScale(d.start_date)))
           .attr('height', d => yScale.bandwidth())
           .style('fill', 'white')
-          .style('stroke', 'orange')
+          .style('stroke', () => colors(lineItem.id))
       };
       renderFlightsRectsArray.push(renderFlightsRects);
 
       const barFlightsTexts = barFlights.selectAll('text')
         .data(flights[i])
         .enter()
-        .append('text');
-      barFlightsTextsArray.push(barFlightsTexts);
-
+        .append('text')
+        .on("mouseover", function (d) {
+          d3.select(this)
+            .text(d => d.lifetime_pacing ? `✏️ $${d.lifetime_budget}️` : `✏️ daily $${d.daily_budget}️`)
+            .style("cursor", "pointer");
+        })
+        .on("mouseout", function (d) {
+          d3.select(this)
+            .text(d => d.lifetime_pacing ? `$${d.lifetime_budget}` : `daily $${d.daily_budget}️`)
+            .style("cursor", "default");
+        });
       const renderBarFlightsTexts = () => {
         barFlightsTexts
           .attr('x', d => (xScale(d.end_date) + xScale(d.start_date)) / 2)
@@ -248,7 +264,7 @@ const loadLineItem = (id) => new Promise(function (resolve) {
           .attr("alignment-baseline", "central")
           .attr("font-family", "sans-serif")
           .attr("font-size", "12px")
-          .text(d => `$${d.lifetime_budget}`)
+          .text(d => d.lifetime_pacing ? `$${d.lifetime_budget}` : `daily $${d.daily_budget}`)
           .style('fill', 'black')
           .attr('opacity', function (d) {
             const isVisible = this.getBBox().width < (xScale(d.end_date) - xScale(d.start_date));
@@ -259,150 +275,147 @@ const loadLineItem = (id) => new Promise(function (resolve) {
     });
 
     return {
-      barFlightsArray,
-      barFlightsRectsArray,
       renderFlightsRectsArray,
-      barFlightsTextsArray,
       renderBarFlightsTextsArray,
     };
   })();
 
-const now = moment(new Date());
+  const now = moment(new Date());
 
-const verticalLine = svg.append('line');
-const renderVerticalLine = () => {
-  verticalLine
-    .attr('x1', xScale(now))
-    .attr('y1', 0)
-    .attr('x2', xScale(now))
-    .attr('y2', height + 15)
-    .attr('stroke', 'brown')
-    .attr('stroke-width', 1)
-    .attr('stroke-dasharray', '5,3')
-    .attr('opacity', function () {
-      const isVisible = xScale(now) > 0;
-      return isVisible ? 1: 0;
-    });
-};
+  const verticalLine = svg.append('line');
+  const renderVerticalLine = () => {
+    verticalLine
+      .attr('x1', xScale(now))
+      .attr('y1', 0)
+      .attr('x2', xScale(now))
+      .attr('y2', height + 15)
+      .attr('stroke', 'brown')
+      .attr('stroke-width', 1)
+      .attr('stroke-dasharray', '5,3')
+      .attr('opacity', function () {
+        const isVisible = xScale(now) > 0;
+        return isVisible ? 1: 0;
+      });
+  };
 
-const labelToday = svg.append('text');
-const renderLabelToday = () => {
-  labelToday
-    .attr('x', xScale(now))
-    .attr('y', height + 25)
-    .attr("text-anchor", "middle")
-    .attr("alignment-baseline", "central")
-    .attr("font-family", "sans-serif")
-    .attr("font-size", "10px")
-    .text("now")
-    .style('fill', 'brown')
-    .attr('opacity', function () {
-      const isVisible = xScale(now) > 0;
-      return isVisible ? 1: 0;
-    });
-};
+  const labelToday = svg.append('text');
+  const renderLabelToday = () => {
+    labelToday
+      .attr('x', xScale(now))
+      .attr('y', height + 25)
+      .attr("text-anchor", "middle")
+      .attr("alignment-baseline", "central")
+      .attr("font-family", "sans-serif")
+      .attr("font-size", "10px")
+      .text("now")
+      .style('fill', 'brown')
+      .attr('opacity', function () {
+        const isVisible = xScale(now) > 0;
+        return isVisible ? 1: 0;
+      });
+  };
 
-const xAxisElement = svg.append('g')
-  .attr('transform', `translate(0, ${height})`);
-const renderXAxisElement = () => {
-  const xAxis = d3.axisBottom(xScale).tickSizeOuter(0);
-  xAxisElement.call(xAxis);
-};
+  const xAxisElement = svg.append('g')
+    .attr('transform', `translate(0, ${height})`);
+  const renderXAxisElement = () => {
+    const xAxis = d3.axisBottom(xScale).tickSizeOuter(0);
+    xAxisElement.call(xAxis);
+  };
 
-const yAxis = d3.axisLeft(yScale).tickSize(0);
-svg.append('g')
-  .attr('transform', `translate(0, 0)`)
-  .call(yAxis);
+  const yAxis = d3.axisLeft(yScale).tickSize(0);
+  svg.append('g')
+    .attr('transform', `translate(0, 0)`)
+    .call(yAxis);
 
-const renderAll = () => {
-  renderBillingPeriodsRects();
-  renderBarBillingPeriodsTexts();
-  renderFlightsRectsArray.forEach(renderFlightsRects => { renderFlightsRects(); });
-  renderBarFlightsTextsArray.forEach(renderBarFlightsTexts => { renderBarFlightsTexts(); });
-  renderVerticalLine();
-  renderLabelToday();
-  renderXAxisElement();
-};
+  const renderAll = () => {
+    renderBillingPeriodsRects();
+    renderBarBillingPeriodsTexts();
+    renderFlightsRectsArray.forEach(renderFlightsRects => { renderFlightsRects(); });
+    renderBarFlightsTextsArray.forEach(renderBarFlightsTexts => { renderBarFlightsTexts(); });
+    renderVerticalLine();
+    renderLabelToday();
+    renderXAxisElement();
+  };
 
-let dragStartX = null;
-function onDragStart() {
-  dragStartX = d3.event.x;
-}
-function onDrag() {
-  const rangeXScale = d3.scaleTime()
-    .domain([xRange.start, xRange.end])
-    .range([0, width]);
-  const offsetX = d3.event.x - dragStartX;
-  const duration = moment.duration(moment(xRange.start).diff(moment(rangeXScale.invert(offsetX))));
-  xScale.domain([
-    moment(xRange.start).add(duration),
-    moment(xRange.end).add(duration),
-  ]);
-  renderAll();
-}
-function onDragEnd() {
-  const rangeXScale = d3.scaleTime()
-    .domain([xRange.start, xRange.end])
-    .range([0, width]);
-  const offsetX = d3.event.x - dragStartX;
-  const duration = moment.duration(moment(xRange.start).diff(moment(rangeXScale.invert(offsetX))));
-  xRange.start = moment(xRange.start).add(duration);
-  xRange.end = moment(xRange.end).add(duration);
-  xScale.domain([
-    xRange.start,
-    xRange.end,
-  ]);
-  renderAll();
-}
-svg.call(
-  d3.drag()
-    .on('start', onDragStart)
-    .on('drag', onDrag)
-    .on('end', onDragEnd)
-);
-
-const onZoom = function () {
-  // console.log(d3.select);
-  // console.log('zoom, d3.event.target', d3.event.target);
-  // console.log('zoom, d3.event.type', d3.event.type);
-  // console.log('zoom, d3.event.scale', d3.event.transform);
-  // console.log('zoom, d3.event.sourceEvent', d3.event.sourceEvent);
-  // const [x, y] = d3.mouse(this);
-  // console.log('x', x);
-  // console.log('y', y);
-
-  const [x] = d3.mouse(this);
-  const momentX = xScale.invert(x);
-  // console.log(momentX);
-  const duration = moment.duration(moment(dataRange.end).diff(moment(dataRange.start))).asMilliseconds();
-  const zoomFactor = d3.zoomTransform(this).k;
-  // console.log('zoomFactor', zoomFactor);
-  const scaledDuration = duration * 1.1 * zoomFactor;
-  xRange.start = moment(momentX).subtract(scaledDuration * (x / width), 'ms');
-  xRange.end = moment(momentX).add(scaledDuration * (width - x) / width, 'ms');
-  xScale.domain([
-    xRange.start,
-    xRange.end,
-  ]);
-  renderAll();
-};
-
-
-
-svg.call(
-  d3.zoom()
-    .on('zoom', onZoom)
-);
-d3.select(window).on('keydown', () => {
-  if(d3.event.keyCode === 'R'.charCodeAt(0)) { // reset by key press 'r'
-    resetXRange();
+  let dragStartX = null;
+  function onDragStart() {
+    dragStartX = d3.event.x;
   }
-});
+  function onDrag() {
+    const rangeXScale = d3.scaleTime()
+      .domain([xRange.start, xRange.end])
+      .range([0, width]);
+    const offsetX = d3.event.x - dragStartX;
+    const duration = moment.duration(moment(xRange.start).diff(moment(rangeXScale.invert(offsetX))));
+    xScale.domain([
+      moment(xRange.start).add(duration),
+      moment(xRange.end).add(duration),
+    ]);
+    renderAll();
+  }
+  function onDragEnd() {
+    const rangeXScale = d3.scaleTime()
+      .domain([xRange.start, xRange.end])
+      .range([0, width]);
+    const offsetX = d3.event.x - dragStartX;
+    const duration = moment.duration(moment(xRange.start).diff(moment(rangeXScale.invert(offsetX))));
+    xRange.start = moment(xRange.start).add(duration);
+    xRange.end = moment(xRange.end).add(duration);
+    xScale.domain([
+      xRange.start,
+      xRange.end,
+    ]);
+    renderAll();
+  }
+  svg.call(
+    d3.drag()
+      .on('start', onDragStart)
+      .on('drag', onDrag)
+      .on('end', onDragEnd)
+  );
 
-d3.select(window).on('resize', () => {
+  const onZoom = function () {
+    // console.log(d3.select);
+    // console.log('zoom, d3.event.target', d3.event.target);
+    // console.log('zoom, d3.event.type', d3.event.type);
+    // console.log('zoom, d3.event.scale', d3.event.transform);
+    // console.log('zoom, d3.event.sourceEvent', d3.event.sourceEvent);
+    // const [x, y] = d3.mouse(this);
+    // console.log('x', x);
+    // console.log('y', y);
 
-});
+    const [x] = d3.mouse(this);
+    const momentX = xScale.invert(x);
+    // console.log(momentX);
+    const duration = moment.duration(moment(dataRange.end).diff(moment(dataRange.start))).asMilliseconds();
+    const zoomFactor = d3.zoomTransform(this).k;
+    // console.log('zoomFactor', zoomFactor);
+    const scaledDuration = duration * 1.1 * zoomFactor;
+    xRange.start = moment(momentX).subtract(scaledDuration * (x / width), 'ms');
+    xRange.end = moment(momentX).add(scaledDuration * (width - x) / width, 'ms');
+    xScale.domain([
+      xRange.start,
+      xRange.end,
+    ]);
+    renderAll();
+  };
 
-renderAll();
+
+
+  svg.call(
+    d3.zoom()
+      .on('zoom', onZoom)
+  );
+  d3.select(window).on('keydown', () => {
+    if(d3.event.keyCode === 'R'.charCodeAt(0)) { // reset by key press 'r'
+      resetXRange();
+    }
+  });
+
+  d3.select(window).on('resize', () => {
+
+  });
+
+  renderAll();
 
 })();
